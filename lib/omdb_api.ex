@@ -25,6 +25,12 @@ defmodule OMDBApi do
       "Poster" => poster, "imdbID" => imdb_id} = search(title)
     url = "?t=#{URI.encode_www_form(normalized_title)}&y=#{year}&plot=short"
     data = get!(url).body
-    IO.puts data[:Director]
+    director = data[:Director]
+    actors = data[:Actors]
+    plot = data[:Plot]
+    rating = data[:imdbRating]
+    %{:title => normalized_title, :year => year, :poster => poster,
+      :imdbid => imdb_id, :director => director, :actors => actors,
+      :plot => plot, :rating => rating}
   end
 end
