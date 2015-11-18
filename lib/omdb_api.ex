@@ -29,8 +29,9 @@ defmodule OMDBApi do
     actors = data[:Actors]
     plot = data[:Plot]
     rating = data[:imdbRating]
+    runtime = data[:Runtime]
     %{:title => normalized_title, :year => year, :poster => poster,
       :imdbid => imdb_id, :director => director, :actors => actors,
-      :plot => plot, :rating => rating}
+      :plot => plot, :rating => rating, :runtime => runtime}
   end
 end
