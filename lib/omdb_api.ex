@@ -13,25 +13,41 @@ defmodule OMDBApi do
 
   def search(title) do
     url = "?s=#{URI.encode_www_form(title)}"
-    get!(url).body[:Search] |> List.first
+    response = get!(url).body
+    case response do
+      [{:Error, "Movie not found!"}, {:Response, "False"}] ->
+        {:not_found, "Movie not found"}
+      _ ->
+        response[:Search] |> List.first
+    end
   end
   def search(title, year) do
     url = "?s=#{URI.encode_www_form(title)}&y=#{year}"
-    get!(url).body[:Search] |> List.first
+    response = get!(url).body
+    case response do
+      [{:Error, "Movie not found!"}, {:Response, "False"}] ->
+        {:not_found, "Movie not found"}
+      _ ->
+        response[:Search] |> List.first
+    end
   end
 
   def movie_info(title) do
-    %{"Title" => normalized_title, "Year" => year,
-      "Poster" => poster, "imdbID" => imdb_id} = search(title)
-    url = "?t=#{URI.encode_www_form(normalized_title)}&y=#{year}&plot=short"
-    data = get!(url).body
-    director = data[:Director]
-    actors = data[:Actors]
-    plot = data[:Plot]
-    rating = data[:imdbRating]
-    runtime = data[:Runtime]
-    %{:title => normalized_title, :year => year, :poster => poster,
-      :imdbid => imdb_id, :director => director, :actors => actors,
-      :plot => plot, :rating => rating, :runtime => runtime}
+    case search(title) do
+      %{"Title" => normalized_title, "Year" => year,
+        "Poster" => poster, "imdbID" => imdb_id} -> 
+        url = "?t=#{URI.encode_www_form(normalized_title)}&y=#{year}&plot=short"
+        data = get!(url).body
+        director = data[:Director]
+        actors = data[:Actors]
+        plot = data[:Plot]
+        rating = data[:imdbRating]
+        runtime = data[:Runtime]
+        %{:title => normalized_title, :year => year, :poster => poster,
+          :imdbid => imdb_id, :director => director, :actors => actors,
+          :plot => plot, :rating => rating, :runtime => runtime}
+      {:not_found, _} ->
+        %{:error => "Movie not found, please refine search result."}
+    end
   end
 end
